@@ -1,0 +1,75 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+<h1>Address</h1>
+<select id="select1"></select>
+<select id="select2"></select>
+<select id="select3"></select>
+
+
+@section Styles {
+    <style>
+
+        
+    </style>
+}
+@section Scripts {
+    <script>
+
+        const selCity = document.querySelector('#select1');
+        const selTownships = document.querySelector('#select2');
+        const selRoad = document.querySelector('#select3');
+
+
+        selCity.addEventListener("change", async () => {
+            selRoad.innerHTML = "";
+            try {
+                const response = await fetch(`@Url.Content("~/api/Townships?city=${selCity.value}")`);
+                if (!response.ok) {
+                    console.log(`有錯誤:${response.status}`)
+                    return
+                }        
+                const datas = await response.json();
+                const townships = datas.map(townships => `<option value="${townships}">${townships}</option>`);
+                selTownships.innerHTML = townships.join("");
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
+
+
+
+        selTownships.addEventListener("change", async () => {
+            try {
+                const response = await fetch(`@Url.Content("~/api/Roads?townships=${selTownships.value}")`);
+                if (!response.ok) {
+                    console.log(`有錯誤:${response.status}`)
+                    return
+                }
+                console.log(selCity.value);
+                console.log(selTownships.value);
+                const datas = await response.json();
+                const roads = datas.map(roads => `<option value="${roads}">${roads}</option>`);
+                selRoad.innerHTML = roads.join("");
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
+        
+
+
+        (async () => {
+            const response = await fetch('@Url.Content("~/api/cities")');
+            if (!response.ok) {
+                console.log(`有錯誤:${response.status}`)
+                return
+            }
+
+            const datas = await response.json();
+            const cities = datas.map(city => `<option value="${city}">${city}</option>`);
+            selCity.innerHTML = cities.join("");
+        })();
+    </script>
+}

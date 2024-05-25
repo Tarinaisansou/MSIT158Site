@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewData["Title"] = "Homework1";
+}
+
+<h1>Homework1</h1>
+<div id="div1" class="w-auto">
+</div>
+
+@section Scripts {
+    <script src="~/js/travel.js"></script>
+    <script>
+        const mydiv = document.querySelector("#div1");
+
+        const list = spots.CommonFormat.Section.map(item =>
+            `<div class="col">
+                        <div class="card h-100">
+                                    <img src="${item.file.img && item.file.img.length > 0 ? item.file.img[0].text : ''}" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">${item.stitle}</h5>
+                                <p class="card-text">${item.xbody}</p>
+                            </div>
+                        </div>
+                    </div>`
+        );
+
+        mydiv.innerHTML = `
+                    <div class="row row-cols-1 row-cols-md-3 g-4 h-60">
+                        ${list.join("")}
+                    </div>`;
+
+        console.log(spots.CommonFormat.Section);
+        console.log(spots.CommonFormat.Section.length);
+    </script>
+}

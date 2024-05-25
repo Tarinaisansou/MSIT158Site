@@ -1,0 +1,62 @@
+﻿
+@{
+    ViewData["Title"] = "Homework2";
+}
+
+<h1>Homework2</h1>
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <h1>Register</h1>
+        <form method="post" action="~/api/Register">
+            <div class="mb-3">
+                <label for="InputName" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="InputName" name="userName">
+
+            </div>
+            <div class="mb-3">
+                <label for="InputEmail" class="form-label">電子郵件</label>
+                <input type="email" class="form-control" id="InputEmail" name="email">
+            </div>
+            <div class="mb-3">
+                <label for="InputAge" class="form-label">年紀</label>
+                <input type="number" class="form-control" id="InputAge" name="age">
+            </div>
+
+            <button type="button" class="btn btn-primary" id="buttonSubmit">送出</button>
+        </form>
+        <div id="div1" class="alert alert-info mt-3"></div>
+    </div>
+    <div class="col-3"></div>
+</div>
+
+    @section Scripts {
+        <script>
+        const divResult = document.querySelector('#div1');
+        const myname = document.querySelector("#InputName")
+        const myemail = document.querySelector("#InputEmail")
+        const myage = document.querySelector("#InputAge")
+
+        myname.addEventListener("blur",async ()=>{
+            try {
+                const response = await fetch(`@Url.Content("~/api/CheckName?name=${InputName.value}")`);
+                const data = await response.text();
+                console.log(data);
+                if (data == "True") {
+                    divResult.innerHTML = "帳號已存在";
+                    return;
+                }
+                divResult.innerHTML = "帳號可使用";
+            }
+            catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }          
+
+
+        })
+
+
+        </script>
+    }
+
+

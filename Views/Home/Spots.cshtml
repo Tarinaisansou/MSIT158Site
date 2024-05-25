@@ -1,0 +1,165 @@
+﻿﻿
+@{
+    ViewData["Title"] = "Spots";
+}
+
+<h1>台北市景點</h1>
+<div class="row mb-3">
+    <div class="col-3">
+     <select id="selectpPageSize">
+         <option>每頁10筆資料</option>
+            <option>每頁20筆資料</option>
+            <option>每頁30筆資料</option>
+        </select>
+        <div id="categoryDiv"></div>
+    </div>
+    <div class="col-6">
+        <nav>
+            <ul class="pagination" id="ul1">
+            </ul>
+        </nav>
+    </div>
+    <div class="col-3">
+        <select id="selectSortingMethod">
+            <option>-選擇排序方式-</option>
+            <option>排序升冪</option>
+            <option>排序降冪</option>
+        </select>
+        <input type="search" placeholder="搜尋景點資料" class="form-control" id="inputSearch" />
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="div1">
+</div>
+
+
+@section Styles {
+    <style>
+
+
+    </style>
+}
+@section Scripts {
+    <script>
+        const selectSortingMethod = document.querySelector('#selectSortingMethod');
+        const divSpots = document.querySelector('#div1');
+        const ulPaging = document.querySelector('#ul1');
+        const inpSearch = document.querySelector('#inputSearch');
+        const selectpPageSize = document.querySelector('#selectpPageSize');
+        const categoryDiv = document.querySelector('#categoryDiv');
+
+        const searchData = {
+            "categoryId": 0,
+            "keyword": "",
+            "page": 1,
+            "pageSize": 30,
+            "sortBy": "SpotId",
+            "sortType": ""
+        };
+        const pagingHandler = page => {
+            searchData.page = page;
+            loadSpots();
+        }
+        const loadSpots = async () => {
+            const url = 'https://localhost:7038/api/Spots';
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(searchData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            console.log(data);
+
+            console.log(data.categories)
+            //顯示分類按鈕
+         const cates  =    data.categories.map(items => {
+                const { categoryName, categoryId } = items;
+                return(`
+                        <button value="${categoryId}" onclick="categorySelected(this)">${categoryName}</button>
+                `)
+            })
+            categoryDiv.innerHTML = cates.join("");
+
+
+            //顯示景點資料
+            const spots = data.spotsResult.map(spot => {
+                const { spotId, spotTitle, spotDescription, address, spotImage } = spot;
+                return (`
+                                             <div class="col">
+                                                     
+                                <div class="card">
+                                            <img src="${spotImage}" class="card-img-top" alt="${spotTitle}">
+                                    <div class="card-body">
+                                                        <h5 class="card-title">${spotId} ${spotTitle}</h5>
+                                                                <p class="card-text">${spotDescription.length <= 100 ? spotDescription : spotDescription.substring(0, 100)}</p>
+                                    </div>
+                                    <div class="card-footer">
+                                                        <small class="text-body-secondary">${address}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                                       `)
+            })
+            divSpots.innerHTML = spots.join("");
+
+            //顯示分頁按鈕
+            let liPages = "";
+            for (let i = 1, max = data.totalPages; i <= max; i++) {
+                liPages += `<li class="page-item" onclick="pagingHandler(${i})"><a class="page-link">${i}</a></li>`
+            }
+            ulPaging.innerHTML = liPages;
+        }
+
+        function categorySelected(button) {
+            searchData.categoryId = button.value;
+            loadSpots();
+        }
+        //加入排序方法
+        selectSortingMethod.addEventListener('change', async () => {
+            if (selectSortingMethod.value == '排序升冪') {
+                searchData.sortType = "asc"
+                loadSpots();
+            }
+           
+            if (selectSortingMethod.value == '排序降冪') {
+                searchData.sortType = "desc"
+                loadSpots();
+            }
+
+        })
+
+        
+
+        // (async ()=>{
+        loadSpots();
+        //  })();
+        selectpPageSize.addEventListener('change', async () => {
+            if (selectpPageSize.value == '每頁10筆資料') {
+                searchData.pageSize = 10;
+                loadSpots();
+                return;
+            }
+            if (selectpPageSize.value == '每頁20筆資料') {
+                searchData.pageSize = 20;
+                loadSpots();
+            }
+            if (selectpPageSize.value == '每頁30筆資料') {
+                searchData.pageSize = 30;
+                loadSpots();
+            }
+        }
+
+        )
+
+
+        inpSearch.addEventListener('keydown', event => {
+            if (event.keyCode === 13) {
+                searchData.keyword = event.target.value;
+                loadSpots();
+            }
+        })
+    </script>
+}

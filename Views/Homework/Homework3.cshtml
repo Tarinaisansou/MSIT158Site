@@ -1,0 +1,158 @@
+﻿
+@{
+    ViewData["Title"] = "Homework3";
+}
+
+<h1>Homework3</h1>
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <h1>Register</h1>
+        <form method="post" action="~/api/Register" id="userForm">
+            <div class="mb-3">
+                <label for="InputName" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="InputName" name="Name">
+                <div id="div2" class="alert alert-info mt-2"></div>
+
+            </div>
+            <div class="mb-3">
+                <label for="InputEmail" class="form-label">電子郵件</label>
+                <input type="email" class="form-control" id="InputEmail" name="Email">
+                <div id="div3" class="alert alert-info mt-2"></div>
+            </div>
+            @* 還沒改好 *@
+            <div class="mb-3">
+                <label for="InputPassword" class="form-label">密碼</label>
+                <input type="password" class="form-control" id="InputPassword" name="Password">
+            </div>
+            <div class="mb-3">
+                <label for="InputConfirmPassword" class="form-label">確認密碼</label>
+                <input type="password" class="form-control" id="InputConfirmPassword" name="ConfirmPassword">
+                <div id="div4" class="alert alert-info mt-3"></div>
+            </div>
+            <div class="mb-3">
+                <label for="InputAge" class="form-label">年紀</label>
+                <input type="number" class="form-control" id="InputAge" name="Age">
+            </div>
+
+            <div class="mb-3">
+                <label for="formFile" class="form-label">圖像</label>
+                <input class="form-control" type="file" id="formFile" name="avatar">
+            </div>
+
+            <button type="button" class="btn btn-primary" id="buttonSubmit">送出</button>
+        </form>
+        <div id="div1" class="alert alert-info mt-3"></div>
+    </div>
+    <div class="col-3"></div>
+</div>
+
+@section Scripts {
+    <script>
+        const divResult = document.querySelector('#div1');
+        const divResult2 = document.querySelector('#div2');
+        const divResult3 = document.querySelector('#div3');
+        const divResult4 = document.querySelector('#div4');
+        const btnSubmit = document.querySelector('#buttonSubmit');
+        const inpName = document.querySelector('#InputName');
+        const inpEmail = document.querySelector('#InputEmail');
+        const inpAge = document.querySelector('#InputAge');
+        const inpPassword = document.querySelector('#InputPassword');
+        const inputConfirmPassword = document.querySelector('#InputConfirmPassword');
+
+        inputConfirmPassword.addEventListener('blur', async () => {
+            if (!(inputConfirmPassword.value == inpPassword.value)) {
+                divResult4.innerHTML = "密碼必須相同"
+            }
+            else {
+                divResult4.innerHTML = ""
+            }
+            
+        })
+
+
+        inpEmail.addEventListener("blur", async () => {
+            try {
+                const response = await fetch(`@Url.Content("~/api/CheckName?name=${inpName.value}")`);
+                const data = await response.text();
+                console.log(data);
+                if (inpName.value == "") {
+                    return;
+                }
+                if (data == "True") {
+                    divResult2.innerHTML = "信箱已存在";
+                    return;
+                }
+                divResult2.innerHTML = "信箱可使用";
+            }
+            catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+
+
+        })
+
+        inpName.addEventListener("blur", async () => {
+            try {
+                const response = await fetch(`@Url.Content("~/api/CheckName?name=${inpName.value}")`);
+                const data = await response.text();
+                console.log(data);
+                if (inpName.value=="")
+                {
+                    return;
+                }
+                if (data == "True") {
+                    divResult2.innerHTML = "帳號已存在";
+                    return;
+                }
+                divResult2.innerHTML = "帳號可使用";
+            }
+            catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+
+
+        })
+
+
+
+
+        btnSubmit.addEventListener('click', async () => {
+            //第一種方法 METHOD為GET
+            // const url = `@Url.Content("~/api/Register")?userName=${inpName.value}&Email=${inpEmail.value}&Age=${inpAge.value}`;
+            // const response = await fetch(url);
+            // const datas = await response.text();
+            // divResult.innerHTML = datas;
+            // console.log(inpName.value);
+
+
+            //第二種方法 METHOD為POST
+            //將資料放進FormData
+
+
+            const myForm = document.querySelector('#userForm');
+            const formData = new FormData(myForm);
+            //formData.append("password", "12345678");
+            //讀出formData中的資料
+            //for(const pair of formData.entries()){
+            //    console.log(`${pair[0]}:${pair[1]}`);
+            //}
+            //const response =  await fetch(url);
+            const url = '@Url.Content("~/api/register/")';
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.text();
+            divResult.textContent = data;
+        })
+        // (async () => {
+        //     const divResult = document.querySelector("#div1")
+        //     const url = '@Url.Content("~/api/Register")?id=1&name=Marry&age=29';
+        //     const response = await fetch(url);
+        //     const data = await response.text();
+        //     divResult.innerHTML = data;
+        // })();
+
+    </script>
+}
